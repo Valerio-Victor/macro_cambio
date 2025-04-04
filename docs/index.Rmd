@@ -1,0 +1,551 @@
+---
+title: 'TAXA DE CÂMBIO'
+subtitle: 'Introdução à Economia </br> (IEPG20)'
+author: 'Autor: Victor Valerio'
+date: 'Última atualização: `r format(Sys.Date(),"%d-%m-%Y")`'
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+# PACOTES UTILIZADOS: ----
+library(xaringanthemer)
+library(xaringanExtra)
+
+# CONFIGURAÇÃO DA FONTE: ----
+style_mono_light(base_color = '#1c5253',
+                  text_font_size = '30px',
+                  header_h1_font_size = '3rem',
+                  header_h2_font_size = '2rem',
+                  header_h3_font_size = '1.5rem')
+
+# CONFIGURAÇÃO PADRÃO CHUNK: ----
+knitr::opts_chunk$set(echo = F,
+                      cache = T,
+                      results = 'asis', 
+                      warning = F, 
+                      message = F, 
+                      error = F, 
+                      fig.align = 'center', 
+                      out.width = '100%',
+                      dpi = 600)
+
+# RECURSOS DO SLIDE: ----
+use_scribble()
+use_search(show_icon = TRUE)
+```
+
+## TÓPICOS ABORDADOS
+
+- [**INTRODUÇÃO**](#introducao)
+
+- [**TAXA DE CÂMBIO NOMINAL**](#nominal)
+
+- [**IMPACTO DO CÂMBIO NOMINAL NO MERCADO INTERNACIONAL**](#impacto_nominal)
+
+- [**TAXA DE CÂMBIO REAL**](#real)
+
+- [**IMPACTO DO CÂMBIO REAL NA COMPETITIVIDADE INDUSTRIAL**](#impacto_real)
+
+---
+class: inverse, center, middle 
+name: introducao
+## INTRODUÇÃO
+
+---
+<div style="text-align: justify">
+## INTRODUÇÃO
+ ---
+
+- Na maior parte dos casos, em cada país os preços dos Bens e Serviços (B&F) são 
+fixados de acordo com a moeda local.
+
+  - Unidade de Conta;
+  - Reserva de Valor;
+  - Meio de troca.
+
+- Por exemplo, no Brasil é utilizado o Real, nos E.U.A é utilizado o Dólar, na 
+Alemanha é utilizado o Euro e assim sucessivamente. 
+
+---
+<div style="text-align: justify"> 
+## INTRODUÇÃO
+ ---
+ 
+- Contudo, para que haja o comércio internacional é necessário utilizar uma 
+**taxa de conversão entre as moedas locais de cada país**. 
+
+- De todo modo, a **taxa de conversão** entre as moedas é denominada de **taxa de 
+câmbio nominal** (denotada por **e**). 
+
+  - A expressão **nominal** refere-se ao fato desta taxa de câmbio **não 
+  "considerar" os efeitos da inflação** de cada país para se realizar a
+  conversão.
+
+---
+class: inverse, center, middle 
+name: nominal
+## TAXA DE CÂMBIO NOMINAL
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO NOMINAL
+ ---
+
+- Pode-se calcular a **taxa de câmbio nominal (e)** a partir da seguinte razão:
+
+$$e= \frac{Unidades \ de \ Moeda \ Local}{Uma \ Unidade \ de \ Moeda \ Estrangeira}$$
+
+- Assim, pode-se interpretar a taxa de câmbio nominal como a **quantidade de 
+moeda local necessária para de adquirir uma unidade de moeda estrangeira**.
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO NOMINAL
+ ---
+
+```{r }
+
+library(magrittr)
+
+# Dólar Americano
+cambio_nominal_dolar <- BETS::BETSget(10813, 
+                                      data.frame = TRUE) 
+
+cambio_nominal_dolar_h <- cambio_nominal_dolar %>% 
+  dplyr::filter(date == dplyr::last(date))
+
+# Euro
+cambio_nominal_euro <- BETS::BETSget(21620,
+                                     data.frame = TRUE)
+
+cambio_nominal_euro_h <- cambio_nominal_euro %>%
+  dplyr::filter(date == dplyr::last(date))
+
+# Iene
+cambio_nominal_iene <- BETS::BETSget(21622,
+                                     data.frame = TRUE)
+
+cambio_nominal_iene_h <- cambio_nominal_iene %>%
+  dplyr::filter(date == dplyr::last(date))
+```
+
+- São alguns exemplos de taxa de câmbio nominal:
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+dolar_nominal <- scales::number(x = cambio_nominal_dolar_h$value, 
+                             decimal.mark = ',', accuracy = 0.01)
+euro_nominal <- scales::number(x = cambio_nominal_euro_h$value, 
+                            decimal.mark = ',', accuracy = 0.01)
+iene_nominal <- scales::number(x = cambio_nominal_iene_h$value, 
+                            decimal.mark = ',', accuracy = 0.01)
+
+tab_cambio_real <- data.frame(
+  moedas = c('Real - Dólar','Real - Euro','Real - Iene'),
+  valor = c(dolar_nominal, euro_nominal, iene_nominal)
+)
+
+knitr::kable(tab_cambio_real, 
+             escape = FALSE,
+             format = 'html',
+             align = c('c', 'c'),
+             col.names = c('MOEDAS','VALORES')) %>%
+  kableExtra::kable_styling(bootstrap_options = 'striped', 
+                font_size = 24)
+```
+ 
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO NOMINAL
+ ---
+
+- Deve-se tomar cuidado quando se avaliar a taxa de câmbio nominal. Isto pois sua
+análise pode ser contraintuitiva:
+
+  - Se a taxa de câmbio nominal **aumenta**, diz-se que há uma 
+  **desvalorização cambial** (ou **desvalorização da moeda local - real**);
+  
+  - Se a taxa de câmbio nominal **diminui** ao longo do tempo, diz-se que há uma 
+  **valorização cambial** (ou **valorização da moeda local - real**).
+
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_nominal_dolar_gg <- cambio_nominal_dolar %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Nominal',
+                subtitle = 'Dólar Americano',
+                x = 'Períodos',
+                y = 'R$/USD',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_nominal_dolar_gg  <- plotly::ggplotly(cambio_nominal_dolar_gg)
+
+widgetframe::frameWidget(cambio_nominal_dolar_gg, 
+                         width = '100%', 
+                         height = '100%')
+``` 
+  
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_nominal_euro_gg <- cambio_nominal_euro %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Nominal',
+                subtitle = 'Euro',
+                x = 'Períodos',
+                y = 'R$/EUR',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_nominal_euro_gg  <- plotly::ggplotly(cambio_nominal_euro_gg)
+
+widgetframe::frameWidget(cambio_nominal_euro_gg, 
+                         width = '100%', 
+                         height = '100%')
+```
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_nominal_iene_gg <- cambio_nominal_iene %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Nominal',
+                subtitle = 'Iene',
+                x = 'Períodos',
+                y = 'R$/JPY',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_nominal_iene_gg  <- plotly::ggplotly(cambio_nominal_iene_gg)
+
+widgetframe::frameWidget(cambio_nominal_iene_gg, 
+                         width = '100%', 
+                         height = '100%')
+```
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO NOMINAL
+ ---
+
+- A **Taxa de Câmbio Nominal (e) corresponde a um preço**, ou seja, ela é 
+determinada pela dinâmica do mercado internacional.
+
+  - Os ofertantes (Agentes que têm Dólar e querem vender em troca de Reais), 
+  por exemplo: Exportadores, turistas estrangeiros, investidores dos E.U.A;
+
+  - Os demandantes (Agentes que têm Reais e querem comprar Dólar em troca), 
+  por exemplo: Importadores, turistas brasileiros, investidores brasileiros que 
+  querem aplicar fora do país.  
+  
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO NOMINAL
+ ---
+
+- Exemplo de ofertante: Um produtor de café que exporte seu produto. 
+
+  - Suas receitas são em Dólar, mas para pagar seus fornecedores e funcionários 
+  ele recorre ao mercado cambial vendendo Dólar para obter Reais.
+  
+- Exemplo de demandante: Um produtor de soja que importe colheitadeiras em sua 
+produção. 
+
+  - Para pagar seus fornecedores ele recorre ao mercado cambial vendendo 
+  comprando Dólar a partir de sua disponibilidade em Reais.
+
+---
+class: inverse, center, middle 
+name: impacto_nominal
+## IMPACTO DO CÂMBIO NOMINAL NO MERCADO INTERNACIONAL
+
+---
+<div style="text-align: justify"> 
+## IMPACTO DO CÂMBIO NOMINAL NO MERCADO INTERNACIONAL
+ ---
+
+- Pode-se assumir a seguinte relação entre a taxa de câmbio nominal e o comércio 
+internacional:
+
+  - Quanto mais desvalorizada a taxa de câmbio nominal (e) maior a receita do 
+  exportador em reais e, portanto, mais propenso a exportar o investidor está.
+
+  - Quanto mais valorizada a taxa de câmbio nominal (e) menor a dívida do 
+  importador em reais e, portanto, mais propenso a importar o investidor está;
+
+---
+class: inverse, center, middle 
+name: real
+## TAXA DE CÂMBIO REAL
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO REAL
+ ---
+
+- A **Taxa de Câmbio Real (E)** corresponde a taxa que compara os preços de um 
+mesmo bem ou serviço entre países diferentes. Para tanto, é utilizada a taxa de 
+câmbio nominal (e) e os índices de preços;
+
+- Pode ser utilizado para indicar ao consumidor onde o produto deve ser comprado!
+
+$$E = \frac{e \cdot 𝑷^∗}{P}$$
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO REAL
+ ---
+
+- Suponha que o preço de um notebook seja $𝑷^∗ = 1000 \ USD$ nos E.U.A e no 
+Brasil seja $𝐏=5000 \ BRL$. Considere ainda a taxa de câmbio nominal inicial 
+entre estes países $e=𝟐 \ BRL/USD$. Onde o produto deve ser comprado?
+
+  - **Notação**: observe que o preço do produto medido em moeda estrangeira é 
+  denotado por $P^*$ e o preço do produto medido em moeda nacional é denotado 
+  por $P$ simplesmente).
+  
+- Para responder a pergunta precisamos transformar o preço do notebook nos E.U.A 
+medido em Reais: $Preço \ em \ Reais =𝒆 \cdot 𝑷^∗ = 2 \cdot 1000$.
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO REAL
+ ---
+
+- Se $𝒆 \cdot 𝑷^∗>𝐏$, então, o consumidor prefere comprar o bem ou serviço no Brasil 
+(em moeda local);
+
+</br>
+
+- Se $𝒆 \cdot 𝑷^∗<𝐏$, então, o consumidor prefere importar o bem ou serviço;
+
+</br>
+
+- Se $𝒆 \cdot 𝑷^∗=𝐏$, então, o consumidor é indiferente entre importar o bem ou 
+serviço ou comprar no Brasil (em moeda local).
+
+---
+<div style="text-align: justify"> 
+## TAXA DE CÂMBIO REAL
+ ---
+
+- São alguns exemplos de taxa de câmbio real:
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+# Dólar Americano
+cambio_real_dolar <- BETS::BETSget(11753, 
+                                   data.frame = TRUE) 
+
+cambio_real_dolar_h <- cambio_real_dolar %>% 
+  dplyr::filter(date == dplyr::last(date))
+
+# Euro
+cambio_real_euro <- BETS::BETSget(11772,
+                                  data.frame = TRUE)
+
+cambio_real_euro_h <- cambio_real_euro %>%
+  dplyr::filter(date == dplyr::last(date))
+
+# Iene
+cambio_real_iene <- BETS::BETSget(11754,
+                                  data.frame = TRUE)
+
+cambio_real_iene_h <- cambio_real_iene %>%
+  dplyr::filter(date == dplyr::last(date))
+
+dolar_real <- scales::number(x = cambio_real_dolar_h$value, 
+                             decimal.mark = ',', accuracy = 0.01)
+euro_real <- scales::number(x = cambio_real_euro_h$value, 
+                            decimal.mark = ',', accuracy = 0.01)
+iene_real <- scales::number(x = cambio_real_iene_h$value, 
+                            decimal.mark = ',', accuracy = 0.01)
+
+tab_cambio_real <- data.frame(
+  moedas = c('Real - Dólar','Real - Euro','Real - Iene'),
+  valor = c(dolar_real, euro_real, iene_real)
+)
+
+knitr::kable(tab_cambio_real, 
+             escape = FALSE,
+             format = 'html',
+             align = c('c', 'c'),
+             col.names = c('MOEDAS','VALORES')) %>%
+  kableExtra::kable_styling(bootstrap_options = 'striped', 
+                font_size = 24)
+```
+  
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_real_dolar_gg <- cambio_real_dolar %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Real',
+                x = 'Períodos',
+                y = 'Dólar (IPCA, Base: Jun/1994 = 100)',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_real_dolar_gg  <- plotly::ggplotly(cambio_real_dolar_gg)
+
+widgetframe::frameWidget(cambio_real_dolar_gg, 
+                         width = '100%', 
+                         height = '100%')
+```
+
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_real_euro_gg <- cambio_real_euro %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Real',
+                x = 'Períodos',
+                y = 'Euro (IPCA, Base: Jun/1994 = 100)',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_real_euro_gg  <- plotly::ggplotly(cambio_real_euro_gg)
+
+widgetframe::frameWidget(cambio_real_euro_gg, 
+                         width = '100%', 
+                         height = '100%')
+```
+
+---
+## O BRASIL EM PERSPECTIVA
+ ---
+
+```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
+
+library(magrittr)
+
+cambio_real_iene_gg <- cambio_real_iene %>% 
+  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
+  dplyr::rename('Data' = date,
+                'Valor' = value) %>% 
+
+  ggplot2::ggplot() +
+  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
+                     colour = '#1c5253',
+                     size = .5) +
+  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
+                                                             accuracy = 0.0001)) +
+  ggplot2::labs(title = 'Taxa de Câmbio Real',
+                x = 'Períodos',
+                y = 'Iene (IPA-DI, Base: Dez/1998 = 100)',
+                caption = 'Dados: BCB.') +
+  xaringanthemer::theme_xaringan(text_font_size = 15,
+                                 title_font_size = 20)
+
+cambio_real_iene_gg  <- plotly::ggplotly(cambio_real_iene_gg)
+
+widgetframe::frameWidget(cambio_real_iene_gg, 
+                         width = '100%', 
+                         height = '100%')
+```
+
+---
+class: inverse, center, middle 
+name: impacto_real
+## IMPACTO DO CÂMBIO REAL NA COMPETITIVIDADE INDUSTRIAL
+
+---
+<div style="text-align: justify"> 
+## IMPACTO DO CÂMBIO REAL NA COMPETITIVIDADE INDUSTRIAL
+ ---
+
+- Se a taxa de câmbio real apresenta uma **variação negativa** diz-se que houve uma 
+**diminuição da competitividade nacional**. Seja porque os preços do resto do mundo 
+diminuíram mais que os nacionais, seja porque houve uma valorização da taxa de 
+câmbio nominal.
+
+- Se a taxa de câmbio real apresenta uma **variação positiva** diz-se que houve um 
+**aumento da competitividade nacional**. Seja porque os preços do resto do mundo 
+aumentaram mais que os nacionais, seja porque houve uma desvalorização da taxa 
+de câmbio nominal.
