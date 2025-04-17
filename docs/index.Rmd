@@ -1,6 +1,6 @@
 ---
 title: 'TAXA DE CÂMBIO'
-subtitle: 'Introdução à Economia </br> (IEPG20)'
+subtitle: 'Macroeconomia </br> (ADM03F)'
 author: 'Autor: Victor Valerio'
 date: 'Última atualização: `r format(Sys.Date(),"%d-%m-%Y")`'
 output:
@@ -112,52 +112,74 @@ moeda local necessária para de adquirir uma unidade de moeda estrangeira**.
  ---
 
 ```{r }
-
 library(magrittr)
+library(httr)
+library(jsonlite)
+
+serie_dolar <- 10813
+serie_euro <- 21620
+
+inicio <- format(Sys.Date() - lubridate::years(x = 10), '%d/%m/%Y') 
+fim <- format(Sys.Date(), '%d/%m/%Y')
 
 # Dólar Americano
-cambio_nominal_dolar <- BETS::BETSget(10813, 
-                                      data.frame = TRUE) 
+url <- paste0(
+  'https://api.bcb.gov.br/dados/serie/bcdata.sgs.', 
+  serie_dolar,
+  '/dados?formato=json&dataInicial=',
+  inicio,
+  '&dataFinal=',
+  fim)
+
+response <- GET(url)
+
+cambio_nominal_dolar <- fromJSON(content(response, "text")) %>% 
+  dplyr::transmute(Data = lubridate::dmy(data),
+                   Valor = as.numeric(valor))
 
 cambio_nominal_dolar_h <- cambio_nominal_dolar %>% 
-  dplyr::filter(date == dplyr::last(date))
+  dplyr::filter(Data == dplyr::last(Data))
 
 # Euro
-cambio_nominal_euro <- BETS::BETSget(21620,
-                                     data.frame = TRUE)
+url <- paste0(
+  'https://api.bcb.gov.br/dados/serie/bcdata.sgs.', 
+  serie_euro,
+  '/dados?formato=json&dataInicial=',
+  inicio,
+  '&dataFinal=',
+  fim)
+
+response <- GET(url)
+
+cambio_nominal_euro <- fromJSON(content(response, "text")) %>% 
+  dplyr::transmute(Data = lubridate::dmy(data),
+                   Valor = as.numeric(valor))
 
 cambio_nominal_euro_h <- cambio_nominal_euro %>%
-  dplyr::filter(date == dplyr::last(date))
-
-# Iene
-cambio_nominal_iene <- BETS::BETSget(21622,
-                                     data.frame = TRUE)
-
-cambio_nominal_iene_h <- cambio_nominal_iene %>%
-  dplyr::filter(date == dplyr::last(date))
+  dplyr::filter(Data == dplyr::last(Data))
 ```
 
-- São alguns exemplos de taxa de câmbio nominal:
+- São alguns exemplos de taxa de câmbio nominal (Data de Referência: `r format(Sys.Date(),"%d-%m-%Y")`')
 
 ```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
 
-dolar_nominal <- scales::number(x = cambio_nominal_dolar_h$value, 
+dolar_nominal <- scales::number(x = cambio_nominal_dolar_h$Valor, 
                              decimal.mark = ',', accuracy = 0.01)
-euro_nominal <- scales::number(x = cambio_nominal_euro_h$value, 
-                            decimal.mark = ',', accuracy = 0.01)
-iene_nominal <- scales::number(x = cambio_nominal_iene_h$value, 
+
+euro_nominal <- scales::number(x = cambio_nominal_euro_h$Valor, 
                             decimal.mark = ',', accuracy = 0.01)
 
+
 tab_cambio_real <- data.frame(
-  moedas = c('Real - Dólar','Real - Euro','Real - Iene'),
-  valor = c(dolar_nominal, euro_nominal, iene_nominal)
+  moedas = c('Real - Dólar','Real - Euro'),
+  valor = c(dolar_nominal, euro_nominal)
 )
 
 knitr::kable(tab_cambio_real, 
              escape = FALSE,
              format = 'html',
              align = c('c', 'c'),
-             col.names = c('MOEDAS','VALORES')) %>%
+             col.names = c('CÂMBIO NOMINAL','VALORES')) %>%
   kableExtra::kable_styling(bootstrap_options = 'striped', 
                 font_size = 24)
 ```
@@ -185,10 +207,6 @@ análise pode ser contraintuitiva:
 library(magrittr)
 
 cambio_nominal_dolar_gg <- cambio_nominal_dolar %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
   ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
                      colour = '#1c5253',
@@ -219,10 +237,6 @@ widgetframe::frameWidget(cambio_nominal_dolar_gg,
 library(magrittr)
 
 cambio_nominal_euro_gg <- cambio_nominal_euro %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
   ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
                      colour = '#1c5253',
@@ -240,39 +254,6 @@ cambio_nominal_euro_gg <- cambio_nominal_euro %>%
 cambio_nominal_euro_gg  <- plotly::ggplotly(cambio_nominal_euro_gg)
 
 widgetframe::frameWidget(cambio_nominal_euro_gg, 
-                         width = '100%', 
-                         height = '100%')
-```
----
-## O BRASIL EM PERSPECTIVA
- ---
-
-```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
-
-library(magrittr)
-
-cambio_nominal_iene_gg <- cambio_nominal_iene %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
-  ggplot2::ggplot() +
-  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
-                     colour = '#1c5253',
-                     size = .5) +
-  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
-                                                             accuracy = 0.0001)) +
-  ggplot2::labs(title = 'Taxa de Câmbio Nominal',
-                subtitle = 'Iene',
-                x = 'Períodos',
-                y = 'R$/JPY',
-                caption = 'Dados: BCB.') +
-  xaringanthemer::theme_xaringan(text_font_size = 15,
-                                 title_font_size = 20)
-
-cambio_nominal_iene_gg  <- plotly::ggplotly(cambio_nominal_iene_gg)
-
-widgetframe::frameWidget(cambio_nominal_iene_gg, 
                          width = '100%', 
                          height = '100%')
 ```
@@ -389,37 +370,59 @@ serviço ou comprar no Brasil (em moeda local).
 
 library(magrittr)
 
-# Dólar Americano
-cambio_real_dolar <- BETS::BETSget(11753, 
-                                   data.frame = TRUE) 
+serie_dolar <- 11753
+serie_euro <- 11772 
 
-cambio_real_dolar_h <- cambio_real_dolar %>% 
-  dplyr::filter(date == dplyr::last(date))
+inicio <- format(Sys.Date() - lubridate::years(x = 10), '%d/%m/%Y') 
+fim <- format(Sys.Date(), '%d/%m/%Y')
+
+# Dólar Americano
+url <- paste0(
+  'https://api.bcb.gov.br/dados/serie/bcdata.sgs.', 
+  serie_dolar,
+  '/dados?formato=json&dataInicial=',
+  inicio,
+  '&dataFinal=',
+  fim)
+
+response <- GET(url)
+
+cambio_real_dolar <- fromJSON(content(response, "text")) %>% 
+  dplyr::transmute(Data = lubridate::dmy(data),
+                   Valor = as.numeric(valor))
+
 
 # Euro
-cambio_real_euro <- BETS::BETSget(11772,
-                                  data.frame = TRUE)
+url <- paste0(
+  'https://api.bcb.gov.br/dados/serie/bcdata.sgs.', 
+  serie_dolar,
+  '/dados?formato=json&dataInicial=',
+  inicio,
+  '&dataFinal=',
+  fim)
+
+response <- GET(url)
+
+cambio_real_euro <- fromJSON(content(response, "text")) %>% 
+  dplyr::transmute(Data = lubridate::dmy(data),
+                   Valor = as.numeric(valor))
+
+
+cambio_real_dolar_h <- cambio_real_dolar %>%
+  dplyr::filter(Data == dplyr::last(Data))
 
 cambio_real_euro_h <- cambio_real_euro %>%
-  dplyr::filter(date == dplyr::last(date))
+  dplyr::filter(Data == dplyr::last(Data))
 
-# Iene
-cambio_real_iene <- BETS::BETSget(11754,
-                                  data.frame = TRUE)
-
-cambio_real_iene_h <- cambio_real_iene %>%
-  dplyr::filter(date == dplyr::last(date))
-
-dolar_real <- scales::number(x = cambio_real_dolar_h$value, 
+dolar_real <- scales::number(x = cambio_real_dolar_h$Valor, 
                              decimal.mark = ',', accuracy = 0.01)
-euro_real <- scales::number(x = cambio_real_euro_h$value, 
-                            decimal.mark = ',', accuracy = 0.01)
-iene_real <- scales::number(x = cambio_real_iene_h$value, 
+
+euro_real <- scales::number(x = cambio_real_euro_h$Valor, 
                             decimal.mark = ',', accuracy = 0.01)
 
 tab_cambio_real <- data.frame(
-  moedas = c('Real - Dólar','Real - Euro','Real - Iene'),
-  valor = c(dolar_real, euro_real, iene_real)
+  moedas = c('Real - Dólar','Real - Euro'),
+  valor = c(dolar_real, euro_real)
 )
 
 knitr::kable(tab_cambio_real, 
@@ -440,10 +443,6 @@ knitr::kable(tab_cambio_real,
 library(magrittr)
 
 cambio_real_dolar_gg <- cambio_real_dolar %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
   ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
                      colour = '#1c5253',
@@ -473,10 +472,6 @@ widgetframe::frameWidget(cambio_real_dolar_gg,
 library(magrittr)
 
 cambio_real_euro_gg <- cambio_real_euro %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
   ggplot2::ggplot() +
   ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
                      colour = '#1c5253',
@@ -493,39 +488,6 @@ cambio_real_euro_gg <- cambio_real_euro %>%
 cambio_real_euro_gg  <- plotly::ggplotly(cambio_real_euro_gg)
 
 widgetframe::frameWidget(cambio_real_euro_gg, 
-                         width = '100%', 
-                         height = '100%')
-```
-
----
-## O BRASIL EM PERSPECTIVA
- ---
-
-```{r, warning = F,message = F, error = F, echo = F, fig.align = 'center', dpi = 300}
-
-library(magrittr)
-
-cambio_real_iene_gg <- cambio_real_iene %>% 
-  dplyr::filter(date >= as.Date('1995-01-01')) %>% 
-  dplyr::rename('Data' = date,
-                'Valor' = value) %>% 
-
-  ggplot2::ggplot() +
-  ggplot2::geom_line(mapping = ggplot2::aes(x = Data, y = Valor),
-                     colour = '#1c5253',
-                     size = .5) +
-  ggplot2::scale_y_continuous(labels = scales::number_format(decimal.mark = ',', 
-                                                             accuracy = 0.0001)) +
-  ggplot2::labs(title = 'Taxa de Câmbio Real',
-                x = 'Períodos',
-                y = 'Iene (IPA-DI, Base: Dez/1998 = 100)',
-                caption = 'Dados: BCB.') +
-  xaringanthemer::theme_xaringan(text_font_size = 15,
-                                 title_font_size = 20)
-
-cambio_real_iene_gg  <- plotly::ggplotly(cambio_real_iene_gg)
-
-widgetframe::frameWidget(cambio_real_iene_gg, 
                          width = '100%', 
                          height = '100%')
 ```
