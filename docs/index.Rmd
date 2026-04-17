@@ -122,6 +122,7 @@ serie_euro <- 21620
 inicio <- format(Sys.Date() - lubridate::years(x = 10), '%d/%m/%Y') 
 fim <- format(Sys.Date(), '%d/%m/%Y')
 
+
 # Dólar Americano
 url <- paste0(
   'https://api.bcb.gov.br/dados/serie/bcdata.sgs.', 
@@ -131,7 +132,9 @@ url <- paste0(
   '&dataFinal=',
   fim)
 
-response <- GET(url)
+response <- GET(url,
+                config = config(connecttimeout = 60), # Aumenta tempo de conexão
+                timeout(50))
 
 cambio_nominal_dolar <- fromJSON(content(response, "text")) %>% 
   dplyr::transmute(Data = lubridate::dmy(data),
@@ -149,7 +152,9 @@ url <- paste0(
   '&dataFinal=',
   fim)
 
-response <- GET(url)
+response <- GET(url,
+                config = config(connecttimeout = 60), # Aumenta tempo de conexão
+                timeout(50))
 
 cambio_nominal_euro <- fromJSON(content(response, "text")) %>% 
   dplyr::transmute(Data = lubridate::dmy(data),
