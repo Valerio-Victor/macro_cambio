@@ -133,7 +133,7 @@ url <- paste0(
   fim)
 
 response <- GET(url,
-                config = config(connecttimeout = 60), # Aumenta tempo de conexão
+                config = config(connecttimeout = 60), 
                 timeout(50))
 
 cambio_nominal_dolar <- fromJSON(content(response, "text")) %>% 
@@ -153,7 +153,7 @@ url <- paste0(
   fim)
 
 response <- GET(url,
-                config = config(connecttimeout = 60), # Aumenta tempo de conexão
+                config = config(connecttimeout = 60), 
                 timeout(50))
 
 cambio_nominal_euro <- fromJSON(content(response, "text")) %>% 
